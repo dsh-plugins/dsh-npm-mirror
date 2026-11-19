@@ -1,0 +1,19 @@
+import { fileURLToPath } from 'node:url'
+import pkg from './package.json' with { type: 'json' }
+
+export default {
+  entry: { client: fileURLToPath(new URL('./src/client/index.tsx', import.meta.url)) },
+  outDir: fileURLToPath(new URL('./lib', import.meta.url)),
+  format: 'cjs', platform: 'browser', target: 'es2022', dts: false, sourcemap: true, clean: false,
+  deps: { neverBundle: [
+    'react', 'react/jsx-runtime', 'react-dom', '@deepseek-ai/dsh-client-store', '@deepseek-ai/dsh-client-ui-primitives', '@dsh-plugin/dsh-loader/client',
+  ] },
+  define: { 'process.env.NODE_ENV': JSON.stringify('production') },
+  outputOptions: {
+    entryFileNames: 'client.js',
+    banner: `window.__ModuleLoader__.load({ id: ${JSON.stringify(pkg.name)}, factory: (require) => {`,
+    intro: 'var module = { exports: {} }; var exports = module.exports;',
+    footer: 'return module.exports; } });',
+    codeSplitting: false,
+  },
+}

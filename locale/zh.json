@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "npm 镜像",
+    "description": "在添加插件菜单管理 npm 仓库名称、URL 与优先级。"
+  }
+}

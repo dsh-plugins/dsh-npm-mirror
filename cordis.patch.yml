@@ -1,0 +1,3 @@
+- insert:
+    - id: dsh-npm-mirror
+      name: '@dsh-plugin/dsh-npm-mirror'

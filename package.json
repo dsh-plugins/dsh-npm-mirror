@@ -1,0 +1,60 @@
+{
+  "name": "@dsh-plugin/dsh-npm-mirror",
+  "version": "0.1.0",
+  "description": "在 DSH 插件页面编辑 npm 镜像、调整安装优先级。",
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@11.17.0",
+  "repository": { "type": "git", "url": "git+https://github.com/dsh-plugins/dsh-npm-mirror.git" },
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": { "types": "./lib/index.d.ts", "default": "./lib/index.js" },
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": ["lib", "locale", "cordis.patch.yml", "icon.svg", "README.md", "LICENSE"],
+  "engines": { "node": ">=24.9.0", "dsh": "0.2.2-rc.3" },
+  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" },
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "inject": ["@deepseek-ai/dsh-client-ui-plugin-manager", "@dsh-plugin/dsh-loader"],
+      "external": ["@dsh-plugin/dsh-loader/client"]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.1.0",
+    "@dsh-plugin/dsh-loader": "2.0.0-dev.43799314028"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "4.1.0",
+    "@deepseek-ai/dsh-app-boot": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-config-editor": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-client-connection": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-client-ui-plugin-manager": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-client-ui-layout": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-client-ui-primitives": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-client-ui-renderer": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-client-ui-slots": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-client-locale": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-client-store": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-plugin-manager": "0.2.2-rc.3",
+    "@dsh-plugin/dsh-loader": "2.0.0-dev.43799314028",
+    "@types/node": "24.13.3",
+    "@types/react": "18.3.31",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tsdown": "0.22.2",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc && tsdown --config tsdown.client.config.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}
