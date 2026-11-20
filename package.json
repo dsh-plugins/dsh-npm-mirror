@@ -31,6 +31,10 @@
     "@deepseek-ai/cordis": "^4.1.0",
     "@dsh-plugin/dsh-loader": "2.0.0-dev.43799314028"
   },
+  "dependencies": {
+    "@deepseek-ai/dsh-atomic-write": "0.2.2-rc.3",
+    "yaml": "2.9.1"
+  },
   "devDependencies": {
     "@deepseek-ai/cordis": "4.1.0",
     "@deepseek-ai/dsh-app-boot": "0.2.2-rc.3",

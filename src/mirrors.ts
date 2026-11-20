@@ -2,6 +2,7 @@
 export interface Mirror {
   readonly name: string
   readonly url: string
+  readonly scope?: string
 }
 
 /** 浏览器提交的凭证只用于替换该仓库的现有凭证。 */
@@ -20,6 +21,7 @@ export interface MirrorSnapshot {
 
 export const MIRRORS_PATH = '/api/dsh-npm-mirror/registries'
 export const MAX_MIRRORS = 20
+export const MAX_SCOPE_LENGTH = 212
 export const MAX_SECRET_LENGTH = 2048
 export const MAX_USERNAME_LENGTH = 256
 export const OFFICIAL = 'https://registry.npmjs.org/'
@@ -37,12 +39,14 @@ export function normalizeUrl(value: string): string {
   return url.href
 }
 
-/** 从浏览器或磁盘读取有序镜像，保留不同仓库路径并拒绝重复地址。 */
-export function parseMirrors(value: unknown): Mirror[] {
+/** 解析有序镜像，省略 scope 字段时保留同地址的已有绑定。 */
+export function parseMirrors(value: unknown, previous: readonly Mirror[] = []): Mirror[] {
   if (!Array.isArray(value) || value.length < 1 || value.length > MAX_MIRRORS) {
     throw new Error(`镜像列表必须包含 1 到 ${MAX_MIRRORS} 项`)
   }
   const urls = new Set<string>()
+  const scopes = new Set<string>()
+  const previousScopes = new Map(previous.map(row => [row.url, row.scope]))
   return value.map((row: unknown) => {
     if (typeof row !== 'object' || row === null || !('name' in row) || !('url' in row)
       || typeof row.name !== 'string' || typeof row.url !== 'string' || row.url.length > 1024) {
@@ -55,7 +59,18 @@ export function parseMirrors(value: unknown): Mirror[] {
     const url = normalizeUrl(row.url)
     if (urls.has(url)) { throw new Error(`镜像 URL 重复：${url}`) }
     urls.add(url)
-    return { name, url }
+    const rawScope = 'scope' in row ? row.scope : previousScopes.get(url)
+    if (rawScope === undefined || (typeof rawScope === 'string' && rawScope.trim() === '')) {
+      return { name, url }
+    }
+    const scope = typeof rawScope === 'string' ? rawScope.trim() : ''
+    if (scope.length > MAX_SCOPE_LENGTH || !/^@[a-z0-9][a-z0-9._-]*$/.test(scope)) {
+      throw new Error('目标 scope 必须以 @ 开头，并使用小写字母、数字、点、下划线或连字符')
+    }
+    if (url.includes('${')) { throw new Error('目标 scope 的仓库 URL 必须是固定地址') }
+    if (scopes.has(scope)) { throw new Error(`目标 scope 重复：${scope}`) }
+    scopes.add(scope)
+    return { name, url, scope }
   })
 }
 

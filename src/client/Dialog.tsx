@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import { Button, Input, Modal } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
 import { Scrollbar } from '@dsh-plugin/dsh-loader/client'
 import {
-  MAX_MIRRORS, MAX_SECRET_LENGTH, MAX_USERNAME_LENGTH, MIRRORS_PATH, moveMirror, normalizeUrl, parseMirrors,
+  MAX_MIRRORS, MAX_SCOPE_LENGTH, MAX_SECRET_LENGTH, MAX_USERNAME_LENGTH, MIRRORS_PATH, moveMirror, normalizeUrl, parseMirrors,
   type MirrorCredential, type MirrorSnapshot, type MirrorView,
 } from '../mirrors.js'
 import type { NS } from './locales.js'
@@ -40,7 +40,8 @@ const css = `
   background: var(--dsw-alias-bg-ui-default, Canvas); border: 1px solid var(--dsw-alias-border-l2, #8885);
 }
 .dsh-npm-mirror-auth p { margin: 8px 0 0; font-size: 12px; color: var(--dsw-alias-label-secondary, GrayText); }
-.dsh-npm-mirror-handle { cursor: grab; }
+.dsh-npm-mirror-handle { cursor: grab; touch-action: none; user-select: none; }
+.dsh-npm-mirror-handle:active { cursor: grabbing; }
 .dsh-npm-mirror-error { margin: 8px 0 0; color: var(--dsw-alias-state-danger-primary, #d33); }
 .dsh-npm-mirror-add { align-self: flex-start; margin-top: 12px; }
 @media (max-width: 480px) { .dsh-npm-mirror-fields { grid-template-columns: minmax(0, 1fr); } }
@@ -59,25 +60,25 @@ function sameUrl(before: string, after: string): boolean {
   }
 }
 
-function CredentialFields({ row, saving, t, onChange }: {
+function RegistryFields({ row, saving, t, onChange }: {
   row: Row
   saving: boolean
   t: Translate
-  onChange: (credential: Row['credential']) => void
+  onChange: (changes: Partial<Row>) => void
 }) {
   const credential = row.credential
   const saved = row.auth && sameUrl(row.originalUrl, row.url) ? row.auth : null
   const mode = credential?.kind ?? (credential === undefined && saved ? 'saved' : 'external')
   return <details className="dsh-npm-mirror-auth">
-    <summary>{t('credentials')}{mode === 'saved' && <small>{t('authSaved')}</small>}</summary>
+    <summary>{t('registryConfig')}{mode === 'saved' && <small>{t('authSaved')}</small>}</summary>
     <div className="dsh-npm-mirror-fields">
       <label>{t('authMode')}
         <select value={mode} disabled={saving} onChange={event => {
           switch (event.target.value) {
-            case 'bearer': onChange({ kind: 'bearer', token: '' }); break
-            case 'basic': onChange({ kind: 'basic', username: '', password: '' }); break
-            case 'saved': onChange(undefined); break
-            case 'external': onChange(null); break
+            case 'bearer': onChange({ credential: { kind: 'bearer', token: '' } }); break
+            case 'basic': onChange({ credential: { kind: 'basic', username: '', password: '' } }); break
+            case 'saved': onChange({ credential: undefined }); break
+            case 'external': onChange({ credential: null }); break
           }
         }}>
           {saved && <option value="saved">{t(saved === 'bearer' ? 'keepBearer' : 'keepBasic')}</option>}
@@ -86,19 +87,24 @@ function CredentialFields({ row, saving, t, onChange }: {
           <option value="basic">{t('basicAuth')}</option>
         </select>
       </label>
+      <label>{t('targetScope')}
+        <Input placeholder="@example" autoCapitalize="none" autoComplete="off" spellCheck={false}
+          maxLength={MAX_SCOPE_LENGTH} disabled={saving} value={row.scope ?? ''}
+          onChange={event => { onChange({ scope: event.target.value }) }} />
+      </label>
       {credential?.kind === 'bearer' && <label>{t('token')}
         <Input type="password" autoComplete="new-password" maxLength={MAX_SECRET_LENGTH} disabled={saving} value={credential.token}
-          onChange={event => { onChange({ ...credential, token: event.target.value }) }} />
+          onChange={event => { onChange({ credential: { ...credential, token: event.target.value } }) }} />
       </label>}
     </div>
     {credential?.kind === 'basic' && <div className="dsh-npm-mirror-fields">
       <label>{t('username')}
         <Input autoComplete="off" maxLength={MAX_USERNAME_LENGTH} disabled={saving} value={credential.username}
-          onChange={event => { onChange({ ...credential, username: event.target.value }) }} />
+          onChange={event => { onChange({ credential: { ...credential, username: event.target.value } }) }} />
       </label>
       <label>{t('password')}
         <Input type="password" autoComplete="new-password" maxLength={MAX_SECRET_LENGTH} disabled={saving} value={credential.password}
-          onChange={event => { onChange({ ...credential, password: event.target.value }) }} />
+          onChange={event => { onChange({ credential: { ...credential, password: event.target.value } }) }} />
       </label>
     </div>}
     {saved && mode === 'external' && <p>{t('clearAuth')}</p>}
@@ -116,7 +122,8 @@ export function MirrorDialog({ close, t }: { close: () => void; t: Translate }) 
   const [reload, setReload] = useState(0)
   const [dragOver, setDragOver] = useState<number>()
   const nextKey = useRef(0)
-  const source = useRef<number | undefined>(undefined)
+  const list = useRef<HTMLOListElement>(null)
+  const drag = useRef<{ key: number; pointerId: number }>()
   const readError = t('readError')
 
   useEffect(() => {
@@ -146,7 +153,15 @@ export function MirrorDialog({ close, t }: { close: () => void; t: Translate }) 
     setRows(current => current.map(row => row.key === key ? { ...row, ...changes } : row))
   }
   const move = (from: number, to: number) => { setRows(current => moveMirror(current, from, to)) }
-  const stopDrag = () => { source.current = undefined; setDragOver(undefined) }
+  const targetKey = ({ clientX, clientY }: PointerEvent<HTMLButtonElement>) => {
+    const target = document.elementFromPoint(clientX, clientY)?.closest<HTMLElement>('li[data-mirror-key]')
+    if (target && target.parentElement === list.current) { return Number(target.dataset.mirrorKey) }
+  }
+  const stopDrag = (event: PointerEvent<HTMLButtonElement>) => {
+    if (drag.current?.pointerId !== event.pointerId) { return }
+    drag.current = undefined
+    setDragOver(undefined)
+  }
   const save = async () => {
     if (saving || revision === undefined) { return }
     setSaving(true)
@@ -158,7 +173,7 @@ export function MirrorDialog({ close, t }: { close: () => void; t: Translate }) 
           || (credential?.kind === 'basic' && (!credential.username || !credential.password))) {
           throw new Error(t('credentialRequired'))
         }
-        return { ...mirror, credential }
+        return { ...mirror, scope: mirror.scope ?? '', credential }
       })
       const response = await fetch(MIRRORS_PATH, {
         method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ revision, mirrors }),
@@ -182,28 +197,33 @@ export function MirrorDialog({ close, t }: { close: () => void; t: Translate }) 
       {loading && <span role="status">{t('waiting')}</span>}
       {revision !== undefined && <>
         <Scrollbar aria-label={t('list')} className="dsh-npm-mirror-list">
-          <ol>
-            {rows.map((row, index) => <li key={row.key} data-drag-over={dragOver === row.key ? '' : undefined}
-              onDragOver={event => {
-                if (source.current === undefined || source.current === row.key) { return }
-                event.preventDefault()
-                event.dataTransfer.dropEffect = 'move'
-                setDragOver(row.key)
-              }}
-              onDrop={event => {
-                if (source.current === undefined) { return }
-                event.preventDefault()
-                move(rows.findIndex(item => item.key === source.current), index)
-                stopDrag()
-              }}>
+          <ol ref={list}>
+            {rows.map((row, index) => <li key={row.key} data-mirror-key={row.key} data-drag-over={dragOver === row.key ? '' : undefined}>
               <Button size="sm" className="dsh-npm-mirror-handle" title={t('drag')} aria-label={t('drag')}
-                draggable={!saving} disabled={saving}
-                onDragStart={event => {
-                  source.current = row.key
-                  event.dataTransfer.effectAllowed = 'move'
-                  event.dataTransfer.setData('text/plain', String(row.key))
+                disabled={saving}
+                onPointerDown={event => {
+                  if (saving || event.button !== 0 || drag.current) { return }
+                  // Launcher 的 Windows WebView 会接管原生 HTML 拖放事件。
+                  event.currentTarget.setPointerCapture(event.pointerId)
+                  drag.current = { key: row.key, pointerId: event.pointerId }
                 }}
-                onDragEnd={stopDrag}>⠿</Button>
+                onPointerMove={event => {
+                  if (drag.current?.pointerId !== event.pointerId) { return }
+                  const target = targetKey(event)
+                  setDragOver(target === drag.current.key ? undefined : target)
+                }}
+                onPointerUp={event => {
+                  const active = drag.current
+                  if (active?.pointerId !== event.pointerId) { return }
+                  const target = targetKey(event)
+                  stopDrag(event)
+                  if (saving || target === undefined || target === active.key) { return }
+                  setRows(current => moveMirror(current,
+                    current.findIndex(item => item.key === active.key),
+                    current.findIndex(item => item.key === target),
+                  ))
+                }}
+                onPointerCancel={stopDrag} onLostPointerCapture={stopDrag}>⠿</Button>
               <div>
                 <div className="dsh-npm-mirror-fields">
                   <label>{t('emptyName')}
@@ -227,7 +247,7 @@ export function MirrorDialog({ close, t }: { close: () => void; t: Translate }) 
                     onClick={() => { setRows(current => current.filter(item => item.key !== row.key)) }}>{t('remove')}</Button>
                   {index === 0 && <small>{t('first')}</small>}
                 </div>
-                <CredentialFields row={row} saving={saving} t={t} onChange={credential => { edit(row.key, { credential }) }} />
+                <RegistryFields row={row} saving={saving} t={t} onChange={changes => { edit(row.key, changes) }} />
               </div>
             </li>)}
           </ol>

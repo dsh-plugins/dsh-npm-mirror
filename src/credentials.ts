@@ -50,8 +50,8 @@ export function readNpmrc(text: string | undefined) {
 }
 
 /** 解析表单中的保留、清除和替换操作，并将 Basic 凭证编码为 npm 配置值。 */
-export function parseMirrorUpdates(input: unknown): MirrorUpdate[] {
-  return parseMirrors(input).map((mirror, index) => {
+export function parseMirrorUpdates(input: unknown, previous?: readonly Mirror[]): MirrorUpdate[] {
+  return parseMirrors(input, previous).map((mirror, index) => {
     const value = (input as { credential?: unknown }[])[index]!.credential
     if (value === null || value === undefined) { return { ...mirror, credential: value } }
     if (typeof value !== 'object' || !('kind' in value)) {
