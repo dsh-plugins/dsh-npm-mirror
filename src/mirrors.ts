@@ -4,14 +4,24 @@ export interface Mirror {
   readonly url: string
 }
 
+/** 浏览器提交的凭证只用于替换该仓库的现有凭证。 */
+export type MirrorCredential =
+  | { readonly kind: 'bearer'; readonly token: string }
+  | { readonly kind: 'basic'; readonly username: string; readonly password: string }
+
+/** 镜像的凭证状态，供浏览器判断能否保留或清除已保存的凭证。 */
+export type MirrorView = Mirror & { readonly auth: MirrorCredential['kind'] | null }
+
 /** 与宿主配置一起读取的并发版本。 */
 export interface MirrorSnapshot {
   readonly revision: string
-  readonly mirrors: readonly Mirror[]
+  readonly mirrors: readonly MirrorView[]
 }
 
 export const MIRRORS_PATH = '/api/dsh-npm-mirror/registries'
 export const MAX_MIRRORS = 20
+export const MAX_SECRET_LENGTH = 2048
+export const MAX_USERNAME_LENGTH = 256
 export const OFFICIAL = 'https://registry.npmjs.org/'
 export const NPMMIRROR = 'https://registry.npmmirror.com/'
 

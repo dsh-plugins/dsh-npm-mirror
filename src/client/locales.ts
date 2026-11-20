@@ -21,6 +21,20 @@ export const zh = {
   saveError: '保存镜像配置失败',
   first: '优先使用',
   list: '镜像列表',
+  credentials: '认证凭证',
+  authSaved: '已保存',
+  authMode: '认证方式',
+  keepBearer: '保留已保存的令牌',
+  keepBasic: '保留已保存的用户名和密码',
+  externalAuth: '使用现有 npm / pnpm 配置',
+  bearerAuth: 'Bearer 令牌',
+  basicAuth: '用户名和密码（Basic）',
+  token: '令牌',
+  username: '用户名',
+  password: '密码',
+  clearAuth: '保存后将清除此面板保存的凭证。',
+  changedUrlAuth: '仓库地址已更改。如需认证，请为新地址填写凭证。',
+  credentialRequired: '请填写令牌或完整的用户名和密码。',
 }
 
 export const en: Record<keyof typeof zh, string> = {
@@ -44,6 +58,20 @@ export const en: Record<keyof typeof zh, string> = {
   saveError: 'Could not save the mirrors',
   first: 'First choice',
   list: 'Mirror list',
+  credentials: 'Credentials',
+  authSaved: 'Saved',
+  authMode: 'Authentication method',
+  keepBearer: 'Keep saved token',
+  keepBasic: 'Keep saved username and password',
+  externalAuth: 'Use existing npm / pnpm settings',
+  bearerAuth: 'Bearer token',
+  basicAuth: 'Username and password (Basic)',
+  token: 'Token',
+  username: 'Username',
+  password: 'Password',
+  clearAuth: 'Saving removes the credentials stored by this panel.',
+  changedUrlAuth: 'The registry URL changed. Enter credentials for the new URL if required.',
+  credentialRequired: 'Enter a token or both a username and a password.',
 }
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {
