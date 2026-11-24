@@ -179,6 +179,10 @@ export function MirrorDialog({ close, t }: { close: () => void; t: Translate }) 
       const response = await fetch(MIRRORS_PATH, {
         method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ revision, mirrors }),
       })
+      if (response.status === 409) {
+        setRevision(undefined)
+        throw new Error(t('revisionChanged'))
+      }
       if (!response.ok) { throw await responseError(response, t('saveError')) }
       close()
     } catch (cause) {
@@ -194,6 +198,7 @@ export function MirrorDialog({ close, t }: { close: () => void; t: Translate }) 
       <Button variant="primary" disabled={saving || revision === undefined} onClick={() => { void save() }}>{t(saving ? 'saving' : 'save')}</Button>
     </>}>
     <style data-plugin-css="dsh-npm-mirror">{css}</style>
+    {error && <p className="dsh-npm-mirror-error" role="alert">{error}</p>}
     <Scrollbar aria-label={t('list')} className="dsh-npm-mirror-list">
       <p className="dsh-npm-mirror-description">{t('order')}</p>
       {loading && <span role="status">{t('waiting')}</span>}
@@ -257,7 +262,6 @@ export function MirrorDialog({ close, t }: { close: () => void; t: Translate }) 
             setRows(current => [...current, { key: ++nextKey.current, name: '', url: '', originalUrl: '', auth: null, credential: null }])
           }}>{t('add')}</Button>
       </>}
-      {error && <p className="dsh-npm-mirror-error" role="alert">{error}</p>}
       {!loading && revision === undefined && <Button small onClick={() => { setReload(value => value + 1) }}>{t('retry')}</Button>}
     </Scrollbar>
   </Arco.Modal>
