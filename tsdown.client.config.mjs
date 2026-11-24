@@ -6,7 +6,7 @@ export default {
   outDir: fileURLToPath(new URL('./lib', import.meta.url)),
   format: 'cjs', platform: 'browser', target: 'es2022', dts: false, sourcemap: true, clean: false,
   deps: { neverBundle: [
-    'react', 'react/jsx-runtime', 'react-dom', '@deepseek-ai/dsh-client-store', '@deepseek-ai/dsh-client-ui-primitives', '@dsh-plugin/dsh-loader/client',
+    'react', 'react/jsx-runtime', 'react-dom', 'react-dom/client', '@deepseek-ai/cordis', '@dsh-plugin/dsh-loader/client',
   ] },
   define: { 'process.env.NODE_ENV': JSON.stringify('production') },
   outputOptions: {

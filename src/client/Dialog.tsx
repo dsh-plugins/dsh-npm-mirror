@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
-import { Button, Input, Modal } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { TranslateNS } from '@deepseek-ai/dsh-client-ui-slots'
-import { Scrollbar } from '@dsh-plugin/dsh-loader/client'
+import { Arco, Button, TextInput as Input, Scrollbar } from '@dsh-plugin/dsh-loader/client'
 import {
   MAX_MIRRORS, MAX_SCOPE_LENGTH, MAX_SECRET_LENGTH, MAX_USERNAME_LENGTH, MIRRORS_PATH, moveMirror, normalizeUrl, parseMirrors,
   type MirrorCredential, type MirrorSnapshot, type MirrorView,
@@ -16,11 +15,13 @@ type Row = MirrorView & {
 type Translate = TranslateNS<typeof NS>
 
 const css = `
-.dsh-npm-mirror-dialog { width: min(620px, 100%); max-height: calc(100dvh - 240px); }
-.dsh-npm-mirror-dialog > :last-child { flex-shrink: 0; }
-.dsh-npm-mirror-content { min-height: 0; }
-.dsh-npm-mirror-content > :has(> .dsh-npm-mirror-body),
-.dsh-npm-mirror-body { display: flex; flex-direction: column; min-height: 0; }
+.dsh-npm-mirror-dialog.arco-modal {
+  display: inline-flex; flex-direction: column; width: min(620px, calc(100% - 32px));
+  max-height: max(0px, calc(100dvh - 240px)); text-align: start;
+}
+.dsh-npm-mirror-dialog :is(.arco-modal-header, .arco-modal-footer) { flex: none; }
+.dsh-npm-mirror-dialog .arco-modal-content { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.dsh-npm-mirror-description { margin: 0 0 10px; color: var(--dsw-alias-label-secondary, GrayText); }
 .dsh-npm-mirror-list { flex: 0 1 auto; min-height: 0; }
 .dsh-npm-mirror-list ol { display: grid; gap: 8px; margin: 0; padding: 2px; list-style: none; }
 .dsh-npm-mirror-list li {
@@ -186,20 +187,20 @@ export function MirrorDialog({ close, t }: { close: () => void; t: Translate }) 
     }
   }
 
-  return <Modal open onClose={() => { if (!saving) { close() } }} title={t('title')} closeLabel={t('close')}
-    description={t('order')} className="dsh-npm-mirror-dialog" contentClassName="dsh-npm-mirror-content"
+  return <Arco.Modal visible alignCenter onCancel={() => { if (!saving) { close() } }} title={t('title')}
+    closable={false} maskClosable={!saving} escToExit={!saving} className="dsh-npm-mirror-dialog"
     footer={<>
       <Button disabled={saving} onClick={close}>{t('cancel')}</Button>
       <Button variant="primary" disabled={saving || revision === undefined} onClick={() => { void save() }}>{t(saving ? 'saving' : 'save')}</Button>
     </>}>
-    <style>{css}</style>
-    <div className="dsh-npm-mirror-body">
+    <style data-plugin-css="dsh-npm-mirror">{css}</style>
+    <Scrollbar aria-label={t('list')} className="dsh-npm-mirror-list">
+      <p className="dsh-npm-mirror-description">{t('order')}</p>
       {loading && <span role="status">{t('waiting')}</span>}
       {revision !== undefined && <>
-        <Scrollbar aria-label={t('list')} className="dsh-npm-mirror-list">
           <ol ref={list}>
             {rows.map((row, index) => <li key={row.key} data-mirror-key={row.key} data-drag-over={dragOver === row.key ? '' : undefined}>
-              <Button size="sm" className="dsh-npm-mirror-handle" title={t('drag')} aria-label={t('drag')}
+              <Button small className="dsh-npm-mirror-handle" title={t('drag')} aria-label={t('drag')}
                 disabled={saving}
                 onPointerDown={event => {
                   if (saving || event.button !== 0 || drag.current) { return }
@@ -240,10 +241,10 @@ export function MirrorDialog({ close, t }: { close: () => void; t: Translate }) 
                   </label>
                 </div>
                 <div className="dsh-npm-mirror-actions">
-                  <Button size="sm" title={t('up')} aria-label={t('up')} disabled={saving || index === 0} onClick={() => { move(index, index - 1) }}>↑</Button>
-                  <Button size="sm" title={t('down')} aria-label={t('down')} disabled={saving || index === rows.length - 1}
+                  <Button small title={t('up')} aria-label={t('up')} disabled={saving || index === 0} onClick={() => { move(index, index - 1) }}>↑</Button>
+                  <Button small title={t('down')} aria-label={t('down')} disabled={saving || index === rows.length - 1}
                     onClick={() => { move(index, index + 1) }}>↓</Button>
-                  <Button size="sm" disabled={saving || rows.length === 1}
+                  <Button small disabled={saving || rows.length === 1}
                     onClick={() => { setRows(current => current.filter(item => item.key !== row.key)) }}>{t('remove')}</Button>
                   {index === 0 && <small>{t('first')}</small>}
                 </div>
@@ -251,14 +252,13 @@ export function MirrorDialog({ close, t }: { close: () => void; t: Translate }) 
               </div>
             </li>)}
           </ol>
-        </Scrollbar>
-        <Button className="dsh-npm-mirror-add" variant="outline" size="sm" disabled={saving || rows.length >= MAX_MIRRORS}
+        <Button className="dsh-npm-mirror-add" small disabled={saving || rows.length >= MAX_MIRRORS}
           onClick={() => {
             setRows(current => [...current, { key: ++nextKey.current, name: '', url: '', originalUrl: '', auth: null, credential: null }])
           }}>{t('add')}</Button>
       </>}
       {error && <p className="dsh-npm-mirror-error" role="alert">{error}</p>}
-      {!loading && revision === undefined && <Button size="sm" onClick={() => { setReload(value => value + 1) }}>{t('retry')}</Button>}
-    </div>
-  </Modal>
+      {!loading && revision === undefined && <Button small onClick={() => { setReload(value => value + 1) }}>{t('retry')}</Button>}
+    </Scrollbar>
+  </Arco.Modal>
 }

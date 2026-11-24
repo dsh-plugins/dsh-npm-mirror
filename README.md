@@ -4,11 +4,11 @@
   <p><strong>在 DSH 的添加插件菜单管理 npm 仓库。</strong></p>
 </div>
 
-DSH 0.2.2-rc.3 打开「插件」→「添加插件」右侧箭头→「npm 镜像」。保存后的镜像顺序用于当前 profile 的插件安装和更新。
+DSH `0.2.3-alpha.2` 打开「插件」→「添加插件」右侧箭头→「npm 镜像」。保存后的镜像顺序用于当前配置档的插件安装和更新。
 
 ```sh
-dsh plugin --profile web add @dsh-plugin/dsh-loader@2.0.0-dev.43799314028
-dsh plugin --profile web add @dsh-plugin/dsh-npm-mirror
+dsh plugin --profile web add @dsh-plugin/dsh-loader@next
+dsh plugin --profile web add @dsh-plugin/dsh-npm-mirror@next
 ```
 
 | 操作 | 说明 |
