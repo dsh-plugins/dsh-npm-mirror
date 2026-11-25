@@ -4,7 +4,7 @@
   <p><strong>在 DSH 的添加插件菜单管理 npm 仓库。</strong></p>
 </div>
 
-DSH `0.2.3-alpha.2` 打开「插件」→「添加插件」右侧箭头→「npm 镜像」。保存后的镜像顺序用于当前配置档的插件安装和更新。
+在 DSH `0.2.2-rc.3` 至 `0.2.2-rc.5` 或 `0.2.3-alpha.2` 打开「插件」→「添加插件」右侧箭头→「npm 镜像」。保存后的镜像顺序用于当前配置档的插件安装和更新。
 
 ```sh
 dsh plugin --profile web add @dsh-plugin/dsh-loader@next
@@ -26,7 +26,7 @@ dsh plugin --profile web add @dsh-plugin/dsh-npm-mirror@next
 
 scope 映射写入当前 profile 的 `pnpm-workspace.yaml` 的 `registries`。每个镜像可填写一个 scope，同一个 scope 只能绑定一个镜像。清空字段或移除镜像时，面板会删除仍指向原地址的映射。若已有相同 scope 和地址，填写并保存后可在面板中管理该映射。若同一个 scope 已手动绑定其他地址，保存时会提示冲突。
 
-如果首选地址同时是 pnpm 配置的自定义默认仓库，DSH 0.2.2-rc.3 会沿用该仓库的单源安装规则。要让多个仓库参与回退，可由本插件独立管理插件安装顺序，并保留 pnpm 的默认官方源。
+如果首选地址是 pnpm 的自定义默认仓库，且未列入回退列表，宿主只尝试这个地址。要让多个仓库参与回退，可由本插件管理插件安装顺序，并保留 pnpm 的默认官方源。
 
 ```sh
 pnpm install --frozen-lockfile

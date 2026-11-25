@@ -17,7 +17,7 @@
     "./icon": "./icon.svg"
   },
   "files": ["lib", "locale", "cordis.patch.yml", "icon.svg", "README.md", "LICENSE"],
-  "engines": { "node": ">=24.9.0", "dsh": ">=0.2.3-alpha.2 <0.2.4-0" },
+  "engines": { "node": ">=24.9.0", "dsh": ">=0.2.2-rc.3 <0.2.3-0 || >=0.2.3-alpha.2 <0.2.4-0" },
   "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" },
   "dsh": {
     "bundle": { "patch": "./cordis.patch.yml" },
@@ -28,8 +28,7 @@
     }
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": "~4.2.0-alpha.1",
-    "@dsh-plugin/dsh-loader": "^2.0.0-dev.45328381034"
+    "@dsh-plugin/dsh-loader": "^2.0.0-dev.45572825995"
   },
   "dependencies": {
     "yaml": "2.9.1"
@@ -41,7 +40,7 @@
     "@deepseek-ai/dsh-client-ui-renderer": "0.2.3-alpha.2",
     "@deepseek-ai/dsh-client-ui-slots": "0.2.3-alpha.2",
     "@deepseek-ai/dsh-client-locale": "0.2.3-alpha.2",
-    "@dsh-plugin/dsh-loader": "2.0.0-dev.45328381034",
+    "@dsh-plugin/dsh-loader": "2.0.0-dev.45572825995",
     "@types/node": "24.13.3",
     "@types/react": "18.3.31",
     "react": "18.3.1",

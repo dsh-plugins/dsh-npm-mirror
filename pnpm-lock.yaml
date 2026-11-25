@@ -31,8 +31,8 @@ importers:
         specifier: 0.2.3-alpha.2
         version: 0.2.3-alpha.2(@deepseek-ai/cordis@4.2.0-alpha.1)
       '@dsh-plugin/dsh-loader':
-        specifier: 2.0.0-dev.45328381034
-        version: 2.0.0-dev.45328381034(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.0.0-dev.45572825995
+        version: 2.0.0-dev.45572825995(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/node':
         specifier: 24.13.3
         version: 24.13.3
@@ -161,8 +161,8 @@ packages:
   '@deepseek-ai/schemastery@3.20.0-alpha.1':
     resolution: {integrity: sha512-FOiLPnQmNNDz5kDzAMXQOjSAY6SZNHiz3CIOKOPqTZGwZTGCKqbTYtG9lQMi9sjOMUzqQPBH0lFunYsnlg8ddg==}
 
-  '@dsh-plugin/dsh-loader@2.0.0-dev.45328381034':
-    resolution: {integrity: sha512-jhgqZ27UOzdyOouhpdZ/Y2i5IXb97YpuUJBeVwZCIrYOit94zcVN/ZXextQ/FfVRIwpKpNXfcmwpfhZFVAXBaw==}
+  '@dsh-plugin/dsh-loader@2.0.0-dev.45572825995':
+    resolution: {integrity: sha512-h7ZC4USjTSLYzdgQNUYp4gUQ0V9tW+tALLdFz+uNf/mdEbDXuyEkSkx6d02mBHza3JxPPgItcgSg5/L4U4vUqg==}
     engines: {node: '>=24.9.0'}
     hasBin: true
     peerDependencies:
@@ -1009,7 +1009,7 @@ snapshots:
       '@deepseek-ai/cosmokit': 1.10.0-alpha.1
       '@standard-schema/spec': 1.1.0
 
-  '@dsh-plugin/dsh-loader@2.0.0-dev.45328381034(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@dsh-plugin/dsh-loader@2.0.0-dev.45572825995(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@arco-design/web-react': 2.66.18(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@icon-park/react': 1.4.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
